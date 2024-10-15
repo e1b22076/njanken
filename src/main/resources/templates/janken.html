@@ -9,15 +9,15 @@
 
 <body>
   <h1>Janken GAME!</h1>
-  <p>
-  <div>
-    Hi <span th:text="${name}"></span> !
-  </div>
-  </p>
-  <!--  <a href="/result.html">ぐー</a>
-  <a href="/result.html">ちょき</a>
-  <a href="/result.html">ぱー</a>
--->
+  <span th:text="${name}"></span>
+  <br>
+  <a href="/jankengame?hand=Gu">ぐー</a>
+  <a href="/jankengame?hand=Choki">ちょき</a>
+  <a href="/jankengame?hand=Pa">ぱー</a>
+  <br>
+  [[${hand}]]<br>
+  [[${opponentHand}]]<br>
+  [[${result}]]<br>
 </body>
 
 </html>
