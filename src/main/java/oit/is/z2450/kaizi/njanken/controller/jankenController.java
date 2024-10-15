@@ -1,5 +1,8 @@
 package oit.is.z2450.kaizi.njanken.controller;
 
+import java.security.Principal;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.Random;
 
 import org.springframework.stereotype.Controller;
@@ -7,9 +10,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import oit.is.z2450.kaizi.njanken.model.Entry;
 
 @Controller
 public class jankenController {
+
+  @Autowired
+  private Entry entry;
 
   private static final String[] hands = { "Gu", "Choki", "Pa" };
 
@@ -21,7 +29,11 @@ public class jankenController {
   }
 
   @GetMapping("/janken")
-  public String enterRoom() {
+  public String enterRoom(Principal prin, Model model) {
+    String loginUser = prin.getName();
+    this.entry.addUser(loginUser);
+    model.addAttribute("loginUser", loginUser);
+    model.addAttribute("entry", this.entry);
     return "janken.html";
   }
 

@@ -23,7 +23,8 @@ public class JankenAuthConfiguration {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.formLogin(login -> login
-        .permitAll())
+        .permitAll()
+        .defaultSuccessUrl("/janken", true))
         .logout(logout -> logout
             .logoutUrl("/logout")
             .logoutSuccessUrl("/")) // ログアウト後に / にリダイレクト
