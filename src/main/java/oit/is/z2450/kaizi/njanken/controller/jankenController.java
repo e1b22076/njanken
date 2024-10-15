@@ -16,6 +16,11 @@ public class jankenController {
     return "janken";
   }
 
+  @GetMapping("/janken")
+  public String enterRoom() {
+    return "janken.html";
+  }
+
   @GetMapping("/jankengame")
   public String goResult(@RequestParam String hand, Model model) {
     // 'name'というキーで、フォームから送られた値をモデルに追加
