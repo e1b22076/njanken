@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+  <meta charset="utf-8">
+  <title>janken</title>
+</head>
+
+<body>
+  <a href="/logout">ログアウト</a>
+  <h1>Match</h1>
+
+  <h2> [[${loginUser}]] V.S. CPU</h2>
+
+  <ul>
+    <li th:each="user : ${userList}">[[${user.name}]]</li>
+  </ul>
+
+  <br>
+  <a th:href="@{/fight(id=${CPUID},hand=Gu)}">ぐー</a>
+  <a th:href="@{/fight(id=${CPUID},hand=Choki)}">ちょき</a>
+  <a th:href="@{/fight(id=${CPUID},hand=Pa)}">ぱー</a>
+  <br>
+  <a href="/janken">もどる</a>
+  <br>
+
+  <th:if>[[${hand}]]</th:if>
+  <br>
+  <th:if>[[${opponentHand}]]</th:if>
+  <br>
+  <th:if>[[${result}]]</th:if>
+  <br>
+
+</body>
+
+</html>

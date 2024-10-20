@@ -1,17 +1,21 @@
 package oit.is.z2450.kaizi.njanken.controller;
 
 import java.security.Principal;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.util.ArrayList;
 import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
+
 import oit.is.z2450.kaizi.njanken.model.Entry;
+import oit.is.z2450.kaizi.njanken.model.User;
+import oit.is.z2450.kaizi.njanken.model.Match;
+import oit.is.z2450.kaizi.njanken.model.UserMapper;
+import oit.is.z2450.kaizi.njanken.model.MatchMapper;
 
 @Controller
 public class jankenController {
@@ -19,10 +23,16 @@ public class jankenController {
   @Autowired
   private Entry entry;
 
+  @Autowired
+  private UserMapper userMapper;
+
+  @Autowired
+  private MatchMapper matchMapper;
+
   private static final String[] hands = { "Gu", "Choki", "Pa" };
 
   @PostMapping("/janken")
-  public String enterRoom(@RequestParam String name, Model model) {
+  public String enterRoom(@RequestParam String name, Model model, Principal prin) {
 
     model.addAttribute("name", "Hi " + name);
     return "janken";
@@ -31,33 +41,94 @@ public class jankenController {
   @GetMapping("/janken")
   public String enterRoom(Principal prin, Model model) {
     String loginUser = prin.getName();
+
+    // ユーザーをデータベースから取得
+    ArrayList<User> userList = userMapper.selectUser();
+    model.addAttribute("userList", userList);
+    ArrayList<Match> result = matchMapper.selectMatch();
+    model.addAttribute("result", result);
+    // エントリーにユーザーを追加
     this.entry.addUser(loginUser);
     model.addAttribute("loginUser", loginUser);
     model.addAttribute("entry", this.entry);
-    return "janken.html";
+
+    return "janken";
   }
 
   @GetMapping("/jankengame")
   public String goResult(@RequestParam String hand, Model model) {
-    // 'name'というキーで、フォームから送られた値をモデルに追加
-    model.addAttribute("hand", "あなたの手" + hand);
+    // 'hand'というキーで、フォームから送られた値をモデルに追加
+    model.addAttribute("hand", "あなたの手: " + hand);
     Random random = new Random();
 
     String opponentHand = hands[random.nextInt(hands.length)];
-    model.addAttribute("opponentHand", "相手の手" + opponentHand);
+    model.addAttribute("opponentHand", "相手の手: " + opponentHand);
 
+    // 結果判定
     String result;
     if (hand.equals(opponentHand)) {
       result = "Draw";
-    } else if ((hand.equals("Gu") && opponentHand.equals("Choki") ||
+    } else if ((hand.equals("Gu") && opponentHand.equals("Choki")) ||
         (hand.equals("Choki") && opponentHand.equals("Pa")) ||
-        (hand.equals("Pa") && opponentHand.equals("Gu")))) {
+        (hand.equals("Pa") && opponentHand.equals("Gu"))) {
       result = "You Win!";
     } else {
       result = "You Lose";
     }
-    model.addAttribute("result", "結果" + result);
+    model.addAttribute("result", "結果: " + result);
     return "janken";
+  }
+
+  @GetMapping("/match")
+  public String enterMatch(Principal prin, Model model, @RequestParam int id) {
+    String loginUser = prin.getName();
+
+    // ユーザーをデータベースから取得
+    ArrayList<User> userList = userMapper.selectUser();
+    model.addAttribute("userList", userList);
+    ArrayList<Match> result = matchMapper.selectMatch();
+    model.addAttribute("result", result);
+    model.addAttribute("CPUID", id);
+    // エントリーにユーザーを追加
+    this.entry.addUser(loginUser);
+    model.addAttribute("loginUser", loginUser);
+    model.addAttribute("entry", this.entry);
+    model.addAttribute("hand", "");
+    model.addAttribute("opponentHand", "");
+    model.addAttribute("result", "");
+
+    return "match";
+  }
+
+  @GetMapping("/fight")
+  public String goFight(Principal prin, @RequestParam String hand, @RequestParam int id, Model model) {
+    // 'hand'というキーで、フォームから送られた値をモデルに追加
+    String loginUser = prin.getName();
+    Match match = new Match();
+    model.addAttribute("hand", "あなたの手: " + hand);
+    match.setUser2Hand(hand);
+    Random random = new Random();
+
+    String opponentHand = hands[random.nextInt(hands.length)];
+    model.addAttribute("opponentHand", "相手の手: " + opponentHand);
+    match.setUser1Hand(opponentHand);
+    int ID = userMapper.selectIdUser(loginUser);
+    match.setUser1(1);
+    match.setUser2(ID);
+    // 結果判定
+    String result;
+    if (hand.equals(opponentHand)) {
+      result = "Draw";
+    } else if ((hand.equals("Gu") && opponentHand.equals("Choki")) ||
+        (hand.equals("Choki") && opponentHand.equals("Pa")) ||
+        (hand.equals("Pa") && opponentHand.equals("Gu"))) {
+      result = "You Win!";
+    } else {
+      result = "You Lose";
+    }
+    model.addAttribute("result", "結果: " + result);
+    matchMapper.insertMatch(match);
+    return "match";
   }
 
 }
