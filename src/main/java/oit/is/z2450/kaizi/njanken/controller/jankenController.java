@@ -78,4 +78,21 @@ public class jankenController {
     model.addAttribute("result", "結果: " + result);
     return "janken";
   }
+
+  @GetMapping("/match")
+  public String enterMatch(Principal prin, Model model) {
+    String loginUser = prin.getName();
+
+    // ユーザーをデータベースから取得
+    ArrayList<User> userList = userMapper.selectUser();
+    model.addAttribute("userList", userList);
+    ArrayList<Match> result = matchMapper.selectMatch();
+    model.addAttribute("result", result);
+    // エントリーにユーザーを追加
+    this.entry.addUser(loginUser);
+    model.addAttribute("loginUser", loginUser);
+    model.addAttribute("entry", this.entry);
+
+    return "match";
+  }
 }

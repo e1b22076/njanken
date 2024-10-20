@@ -15,11 +15,14 @@
   <h2> エントリー</h2>
 
   <ul>
-    <li th:each="user : ${userList}">[[${user.name}]]</li>
+    <li th:each="user : ${userList}">
+      <a th:href="@{/match(id=${user.id})}"> [[${user.name}]]</a>
+    </li>
   </ul>
 
   <h2> 試合結果</h2>
-  <p th:each="aresult : ${result}">id:[[${aresult.id}]]
+  <p th:each="aresult : ${result}">
+    id:[[${aresult.id}]]
     user1:[[${aresult.user1}]]
     user2:[[${aresult.user2}]]
     user1の手:[[${aresult.id}]]
