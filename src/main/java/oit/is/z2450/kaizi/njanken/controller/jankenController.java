@@ -80,7 +80,7 @@ public class jankenController {
   }
 
   @GetMapping("/match")
-  public String enterMatch(Principal prin, Model model) {
+  public String enterMatch(Principal prin, Model model, @RequestParam int id) {
     String loginUser = prin.getName();
 
     // ユーザーをデータベースから取得
@@ -88,11 +88,47 @@ public class jankenController {
     model.addAttribute("userList", userList);
     ArrayList<Match> result = matchMapper.selectMatch();
     model.addAttribute("result", result);
+    model.addAttribute("CPUID", id);
     // エントリーにユーザーを追加
     this.entry.addUser(loginUser);
     model.addAttribute("loginUser", loginUser);
     model.addAttribute("entry", this.entry);
+    model.addAttribute("hand", "");
+    model.addAttribute("opponentHand", "");
+    model.addAttribute("result", "");
 
     return "match";
   }
+
+  @GetMapping("/fight")
+  public String goFight(Principal prin, @RequestParam String hand, @RequestParam int id, Model model) {
+    // 'hand'というキーで、フォームから送られた値をモデルに追加
+    String loginUser = prin.getName();
+    Match match = new Match();
+    model.addAttribute("hand", "あなたの手: " + hand);
+    match.setUser2Hand(hand);
+    Random random = new Random();
+
+    String opponentHand = hands[random.nextInt(hands.length)];
+    model.addAttribute("opponentHand", "相手の手: " + opponentHand);
+    match.setUser1Hand(opponentHand);
+    int ID = userMapper.selectIdUser(loginUser);
+    match.setUser1(1);
+    match.setUser2(ID);
+    // 結果判定
+    String result;
+    if (hand.equals(opponentHand)) {
+      result = "Draw";
+    } else if ((hand.equals("Gu") && opponentHand.equals("Choki")) ||
+        (hand.equals("Choki") && opponentHand.equals("Pa")) ||
+        (hand.equals("Pa") && opponentHand.equals("Gu"))) {
+      result = "You Win!";
+    } else {
+      result = "You Lose";
+    }
+    model.addAttribute("result", "結果: " + result);
+    matchMapper.insertMatch(match);
+    return "match";
+  }
+
 }

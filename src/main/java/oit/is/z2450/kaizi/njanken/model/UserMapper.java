@@ -13,6 +13,9 @@ public interface UserMapper {
   @Select("SELECT id,name from user")
   User selectById(int id);
 
+  @Select("SELECT id from USERS WHERE name=#{name}")
+  int selectIdUser(String name);
+
   /**
    * #{userName}などはinsertの引数にあるChamberクラスのフィールドを表しています 引数に直接String
    * userNameなどと書いてもいけるはず
@@ -29,8 +32,6 @@ public interface UserMapper {
 
   @Select("SELECT * from USERS")
   ArrayList<User> selectUser();
-
-
 
   /**
    * DBのカラム名とjavaクラスのフィールド名が同じ場合はそのまま代入してくれる（大文字小文字の違いは無視される）

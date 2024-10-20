@@ -18,12 +18,19 @@
   </ul>
 
   <br>
-  <a href="/jankengame?hand=Gu">ぐー</a>
-  <a href="/jankengame?hand=Choki">ちょき</a>
-  <a href="/jankengame?hand=Pa">ぱー</a>
+  <a th:href="@{/fight(id=${CPUID},hand=Gu)}">ぐー</a>
+  <a th:href="@{/fight(id=${CPUID},hand=Choki)}">ちょき</a>
+  <a th:href="@{/fight(id=${CPUID},hand=Pa)}">ぱー</a>
   <br>
   <a href="/janken">もどる</a>
+  <br>
 
+  <th:if>[[${hand}]]</th:if>
+  <br>
+  <th:if>[[${opponentHand}]]</th:if>
+  <br>
+  <th:if>[[${result}]]</th:if>
+  <br>
 
 </body>
 
