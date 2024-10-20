@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import oit.is.z2450.kaizi.njanken.model.Entry;
 import oit.is.z2450.kaizi.njanken.model.User;
+import oit.is.z2450.kaizi.njanken.model.Match;
 import oit.is.z2450.kaizi.njanken.model.UserMapper;
+import oit.is.z2450.kaizi.njanken.model.MatchMapper;
 
 @Controller
 public class jankenController {
@@ -23,6 +25,9 @@ public class jankenController {
 
   @Autowired
   private UserMapper userMapper;
+
+  @Autowired
+  private MatchMapper matchMapper;
 
   private static final String[] hands = { "Gu", "Choki", "Pa" };
 
@@ -40,7 +45,8 @@ public class jankenController {
     // ユーザーをデータベースから取得
     ArrayList<User> userList = userMapper.selectUser();
     model.addAttribute("userList", userList);
-
+    ArrayList<Match> result = matchMapper.selectMatch();
+    model.addAttribute("result", result);
     // エントリーにユーザーを追加
     this.entry.addUser(loginUser);
     model.addAttribute("loginUser", loginUser);
