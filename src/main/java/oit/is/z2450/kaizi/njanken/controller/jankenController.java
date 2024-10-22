@@ -53,6 +53,8 @@ public class jankenController {
     model.addAttribute("userList", userList);
     ArrayList<Match> result = matchMapper.selectMatch();
     model.addAttribute("result", result);
+    ArrayList<MatchInfo> information = matchInfoMapper.selectTrueUser();
+    model.addAttribute("information", information);
 
     // エントリーにユーザーを追加
     this.entry.addUser(loginUser);
