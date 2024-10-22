@@ -11,11 +11,7 @@
   <a href="/logout">ログアウト</a>
   <h1>Match</h1>
 
-  <h2> [[${loginUser}]] V.S. CPU</h2>
-
-  <ul>
-    <li th:each="user : ${userList}">[[${user.name}]]</li>
-  </ul>
+  <h2>[[${loginUser}]] V.S. [[${enemy}]]</h2>
 
   <br>
   <a th:href="@{/fight(id=${CPUID},hand=Gu)}">ぐー</a>

@@ -14,8 +14,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import oit.is.z2450.kaizi.njanken.model.Entry;
 import oit.is.z2450.kaizi.njanken.model.User;
 import oit.is.z2450.kaizi.njanken.model.Match;
+import oit.is.z2450.kaizi.njanken.model.MatchInfo;
+
 import oit.is.z2450.kaizi.njanken.model.UserMapper;
 import oit.is.z2450.kaizi.njanken.model.MatchMapper;
+import oit.is.z2450.kaizi.njanken.model.MatchInfoMapper;
 
 @Controller
 public class jankenController {
@@ -28,6 +31,9 @@ public class jankenController {
 
   @Autowired
   private MatchMapper matchMapper;
+
+  @Autowired
+  private MatchInfoMapper matchInfoMapper;
 
   private static final String[] hands = { "Gu", "Choki", "Pa" };
 
@@ -47,6 +53,7 @@ public class jankenController {
     model.addAttribute("userList", userList);
     ArrayList<Match> result = matchMapper.selectMatch();
     model.addAttribute("result", result);
+
     // エントリーにユーザーを追加
     this.entry.addUser(loginUser);
     model.addAttribute("loginUser", loginUser);
@@ -89,6 +96,7 @@ public class jankenController {
     ArrayList<Match> result = matchMapper.selectMatch();
     model.addAttribute("result", result);
     model.addAttribute("CPUID", id);
+
     // エントリーにユーザーを追加
     this.entry.addUser(loginUser);
     model.addAttribute("loginUser", loginUser);
@@ -96,6 +104,7 @@ public class jankenController {
     model.addAttribute("hand", "");
     model.addAttribute("opponentHand", "");
     model.addAttribute("result", "");
+    model.addAttribute("enemy", userMapper.selectNameUser(id));
 
     return "match";
   }
@@ -104,31 +113,39 @@ public class jankenController {
   public String goFight(Principal prin, @RequestParam String hand, @RequestParam int id, Model model) {
     // 'hand'というキーで、フォームから送られた値をモデルに追加
     String loginUser = prin.getName();
-    Match match = new Match();
-    model.addAttribute("hand", "あなたの手: " + hand);
-    match.setUser2Hand(hand);
-    Random random = new Random();
+    MatchInfo information = new MatchInfo();
+    information.setUser1(userMapper.selectIdUser(loginUser));
+    information.setUser2(id);
+    information.setActive(true);
+    information.setUser1Hand(hand);
+    matchInfoMapper.insertMatchInfo(information);
+    model.addAttribute("loginUser", loginUser);
 
-    String opponentHand = hands[random.nextInt(hands.length)];
-    model.addAttribute("opponentHand", "相手の手: " + opponentHand);
-    match.setUser1Hand(opponentHand);
-    int ID = userMapper.selectIdUser(loginUser);
-    match.setUser1(1);
-    match.setUser2(ID);
-    // 結果判定
-    String result;
-    if (hand.equals(opponentHand)) {
-      result = "Draw";
-    } else if ((hand.equals("Gu") && opponentHand.equals("Choki")) ||
-        (hand.equals("Choki") && opponentHand.equals("Pa")) ||
-        (hand.equals("Pa") && opponentHand.equals("Gu"))) {
-      result = "You Win!";
-    } else {
-      result = "You Lose";
-    }
-    model.addAttribute("result", "結果: " + result);
-    matchMapper.insertMatch(match);
-    return "match";
+    // Match match = new Match();
+    // model.addAttribute("hand", "あなたの手: " + hand);
+    // match.setUser2Hand(hand);
+    // Random random = new Random();
+
+    // String opponentHand = hands[random.nextInt(hands.length)];
+    // model.addAttribute("opponentHand", "相手の手: " + opponentHand);
+    // match.setUser1Hand(opponentHand);
+    // int ID = userMapper.selectIdUser(loginUser);
+    // match.setUser1(1);
+    // match.setUser2(ID);
+    // // 結果判定
+    // String result;
+    // if (hand.equals(opponentHand)) {
+    // result = "Draw";
+    // } else if ((hand.equals("Gu") && opponentHand.equals("Choki")) ||
+    // (hand.equals("Choki") && opponentHand.equals("Pa")) ||
+    // (hand.equals("Pa") && opponentHand.equals("Gu"))) {
+    // result = "You Win!";
+    // } else {
+    // result = "You Lose";
+    // }
+    // model.addAttribute("result", "結果: " + result);
+    // matchMapper.insertMatch(match);
+    return "wait";
   }
 
 }
