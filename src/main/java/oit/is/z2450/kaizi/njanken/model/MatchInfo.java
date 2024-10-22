@@ -7,6 +7,18 @@ public class MatchInfo {
   String user1Hand;
   boolean isActive;
 
+  public MatchInfo() {
+
+  }
+
+  public MatchInfo(int id2, int user1, int user2, String user1Hand2, boolean isActive2) {
+    this.id = id2;
+    this.user1 = user1;
+    this.user2 = user2;
+    this.user1Hand = user1Hand2;
+    this.isActive = isActive2;
+  }
+
   public int getId() {
     return id;
   }
