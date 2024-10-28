@@ -1,5 +1,9 @@
 package oit.is.z2450.kaizi.njanken.controller;
 
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Random;
@@ -19,17 +23,7 @@ import oit.is.z2450.kaizi.njanken.model.MatchInfo;
 import oit.is.z2450.kaizi.njanken.model.UserMapper;
 import oit.is.z2450.kaizi.njanken.model.MatchMapper;
 import oit.is.z2450.kaizi.njanken.model.MatchInfoMapper;
-
-import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import oit.is.z2450.kaizi.njanken.service.AsyncKekka;
 
 @Controller
@@ -50,7 +44,7 @@ public class jankenController {
   private MatchInfoMapper matchInfoMapper;
 
   @Autowired
-  private AsyncKekka Kekka;
+  AsyncKekka Kekka;
 
   private static final String[] hands = { "Gu", "Choki", "Pa" };
 
@@ -129,21 +123,22 @@ public class jankenController {
   }
 
   @GetMapping("/fight")
-  public String goFight(Principal prin, @RequestParam String hand, @RequestParam int id, Model model) {
+  public String goFight(Principal prin, @RequestParam int id, @RequestParam String hand, Model model) {
     // 'hand'というキーで、フォームから送られた値をモデルに追加
     String loginUser = prin.getName();
     ArrayList<MatchInfo> AMI = matchInfoMapper.selectMe();
-    boolean flag = false; // 少なくとも1つの一致があればtrueになるフラグ
+    int flag = 0; // 少なくとも1つの一致があればtrueになるフラグ
     int mid = 0;
+    int matchId = -1;
     for (MatchInfo matchInfo : AMI) {
       if (matchInfo.getUser2() == userMapper.selectIdUser(loginUser)) {
         mid = matchInfo.getId();
-        flag = true;
+        flag = 1;
         break;
       }
     }
 
-    if (flag == true) {// trueが後
+    if (flag == 1) {// trueが後
       Match match = new Match();
       match.setUser1(id);
       match.setUser2(userMapper.selectIdUser(loginUser));
@@ -151,10 +146,11 @@ public class jankenController {
       match.setUser2Hand(hand);
       match.setActive(true);
       matchMapper.insertMatch(match);
-      System.out.println(mid);
+      match = matchMapper.selectthis();
       MatchInfo info = new MatchInfo(mid, id, userMapper.selectIdUser(loginUser), matchInfoMapper.selectEnemy(id),
           false);
       matchInfoMapper.updateBybool(info);
+      matchId = match.getId();
 
     } else {// falseが先
       MatchInfo information = new MatchInfo();
@@ -191,13 +187,28 @@ public class jankenController {
     // }
     // model.addAttribute("result", "結果: " + result);
     // matchMapper.insertMatch(match);
+    model.addAttribute("ID", matchId);
+    model.addAttribute("MID", mid);
+    model.addAttribute("Flag", flag);
     return "wait";
   }
 
-  @GetMapping("/fight")
-  public SseEmitter sample59() {
+  @GetMapping("/kekka")
+  public SseEmitter seeResult(Principal prin, Model model, @RequestParam int id, @RequestParam int flag,
+      @RequestParam int mid) {
     final SseEmitter sseEmitter = new SseEmitter();
-    this.Kekka.matchfinish();
+    Match match = new Match();
+
+    match = matchMapper.selectById(id);
+
+    try {
+      this.Kekka.matchfinish(sseEmitter, match, flag);
+    } catch (IOException e) {
+      logger.warn("Exception:" + e.getClass().getName() + ":" + e.getMessage());
+      sseEmitter.complete();
+    }
+    model.addAttribute("match", match);
     return sseEmitter;
   }
+
 }

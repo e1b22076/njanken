@@ -14,6 +14,9 @@ public interface MatchInfoMapper {
   @Select("SELECT * FROM MatchInfo WHERE isActive = true ")
   ArrayList<MatchInfo> selectTrueUser();
 
+  @Select("SELECT isActive FROM MatchInfo WHERE id=#{id}")
+  boolean selectactive(int id);
+
   @Select("SELECT * FROM MatchInfo WHERE isActive = true")
   ArrayList<MatchInfo> selectMe();
 

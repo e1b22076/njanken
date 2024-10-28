@@ -1,13 +1,43 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
+
 
 
 <head>
   <meta charset="utf-8">
   <title>janken</title>
+
+  <script>
+    window.onload = function () {
+      var sse = new EventSource('/kekka?id=[[${ID}]]&flag=[[${Flag}]]');
+      sse.onmessage = function (event) {
+        var match = JSON.parse(event.data);//JSONオブジェクトとしてparse
+
+        var result_table = "";
+        var r = "<h2>" + "結果" + "</h2>" + "<br>"
+        var Ma = "<p>Match:"
+        result_table = "match" +
+          "id:" + match.id +
+          "user1:" + match.user1 +
+          "user2:" + match.user2 +
+          "user1Hand:" + match.user1Hand +
+          "user2Hand:" + match.user2Hand +
+          "</p>";
+        var kekka = r + Ma + result_table;
+
+        var id = document.getElementById("kekka");
+        tbody.innerHTML = result_table;//idがfruits_listのtbodyのHTMLを差し替える
+
+      }
+    }
+  </script>
 </head>
 
 <body>
   <a href="/logout">ログアウト</a>
   <h1>相手の手を待っています</h1>
   <p>Hi! [[${loginUser}]]</p>
+  <p id="kekka"></p>
+</body>
+
+</html>
